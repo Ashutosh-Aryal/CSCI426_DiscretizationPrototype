@@ -21,7 +21,8 @@ public class JumpFishBehavior : MonoBehaviour
 
     private int m_Score = 0;
 
-    public static int s_NumAllowedJumps = 3;
+    private int m_NumAllowedJumps = 3;
+    private int m_CurrentAllowedJumps = 3;
 
     private float m_JumpHoldingTimer = 0.0f;
     private int m_NumRowsToJump = 0;
@@ -35,6 +36,16 @@ public class JumpFishBehavior : MonoBehaviour
         if(collision.gameObject.CompareTag(ADD_POINT_TRIGGER_TAG))
         {
             m_Score++;
+
+            if(m_Score > 10)
+            {
+                m_NumAllowedJumps = 1;
+            } else if(m_Score > 5)
+            {
+                m_NumAllowedJumps = 2;
+            }
+
+            m_CurrentAllowedJumps = m_NumAllowedJumps;
         }
     }
 
@@ -43,7 +54,9 @@ public class JumpFishBehavior : MonoBehaviour
         if(collision.gameObject.CompareTag(WALL_TAG))
         {
             m_Score = 0;
-            DisplayEndGameState();
+            m_NumAllowedJumps = 3;
+            m_CurrentAllowedJumps = m_NumAllowedJumps;
+            DisplayEndGameState(); // should restart game and reset player & wall locations
         }
     }
 
@@ -105,6 +118,11 @@ public class JumpFishBehavior : MonoBehaviour
     // Update is called once per frame
     void Update() {
 
+        if(m_CurrentAllowedJumps <= 0)
+        {
+            return;
+        }
+
         if(Input.GetKeyDown(JUMP_UP_KEY)) {
             m_NumRowsToJump = -1; m_ShouldIncrementJumpTimer = true;
         } else if(Input.GetKeyDown(JUMP_DOWN_KEY)) {
@@ -116,6 +134,7 @@ public class JumpFishBehavior : MonoBehaviour
             gameObject.transform.position = m_TeleportLocations[m_CurrentLocationIndex].transform.position;
             m_JumpHoldingTimer = 0.0f; m_ShouldIncrementJumpTimer = false;
             m_Slider.value = 0.0f;
+            m_CurrentAllowedJumps--;
         } 
     }
 }
