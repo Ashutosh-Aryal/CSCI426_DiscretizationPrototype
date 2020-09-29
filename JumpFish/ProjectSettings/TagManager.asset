@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - GameManager
+  - ResetNumJumps
   layers:
   - Default
   - TransparentFX
