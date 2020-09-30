@@ -7,9 +7,11 @@ public class JumpFishBehavior : MonoBehaviour
 {
     private const KeyCode JUMP_UP_KEY = KeyCode.W;
     private const KeyCode JUMP_DOWN_KEY = KeyCode.S;
+    private const int RESPAWN_INDEX = 3;
 
     private const string ADD_POINT_TRIGGER_TAG = "ResetNumJumps";
     private const string WALL_TAG = "Wall";
+    private const string NUM_JUMPS_LEFT_TEXT = "Number of Jumps Left: ";
 
     private const float JUMP_MAX_THRESHOLD_INCREMENT = 0.25f;
 
@@ -19,7 +21,10 @@ public class JumpFishBehavior : MonoBehaviour
     [SerializeField]
     private Slider m_Slider;
 
-    private int m_Score = 0;
+    [SerializeField]
+    private Text m_NumberOfJumpsLeft;
+
+    public static int s_Score = 0;
 
     private int m_NumAllowedJumps = 3;
     private int m_CurrentAllowedJumps = 3;
@@ -31,17 +36,15 @@ public class JumpFishBehavior : MonoBehaviour
     
     private List<GameObject> m_TeleportLocations = new List<GameObject>();
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.gameObject.CompareTag(ADD_POINT_TRIGGER_TAG))
-        {
-            m_Score++;
+    private void OnTriggerEnter2D(Collider2D collision) {
 
-            if(m_Score > 10)
-            {
+        if(collision.gameObject.CompareTag(ADD_POINT_TRIGGER_TAG)) {
+
+            s_Score++;
+
+            if(s_Score > 10) {
                 m_NumAllowedJumps = 1;
-            } else if(m_Score > 5)
-            {
+            } else if(s_Score > 5) {
                 m_NumAllowedJumps = 2;
             }
 
@@ -49,11 +52,11 @@ public class JumpFishBehavior : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.CompareTag(WALL_TAG))
-        {
-            m_Score = 0;
+    private void OnCollisionEnter2D(Collision2D collision) {
+
+        if(collision.gameObject.CompareTag(WALL_TAG)) {
+
+            s_Score = 0;
             m_NumAllowedJumps = 3;
             m_CurrentAllowedJumps = m_NumAllowedJumps;
             DisplayEndGameState(); // should restart game and reset player & wall locations
@@ -62,7 +65,8 @@ public class JumpFishBehavior : MonoBehaviour
 
     private void DisplayEndGameState()
     {
-
+        gameObject.transform.position = m_TeleportLocations[RESPAWN_INDEX].transform.position;
+        WallMovement.DestroyCurrentWalls();
     }
 
     // Start is called before the first frame update
@@ -98,8 +102,7 @@ public class JumpFishBehavior : MonoBehaviour
         return locationIndex;
     }
 
-    private void FixedUpdate()
-    {
+    private void FixedUpdate() {
 
         float THRESHOLD_TO_INCREMENT_NUM_ROWS_JUMPED = JUMP_MAX_THRESHOLD_INCREMENT * Mathf.Abs(m_NumRowsToJump);
         
@@ -118,8 +121,9 @@ public class JumpFishBehavior : MonoBehaviour
     // Update is called once per frame
     void Update() {
 
-        if(m_CurrentAllowedJumps <= 0)
-        {
+        m_NumberOfJumpsLeft.text = NUM_JUMPS_LEFT_TEXT + m_CurrentAllowedJumps;
+
+        if(m_CurrentAllowedJumps <= 0) {
             return;
         }
 

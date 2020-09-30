@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class WallMovement : MonoBehaviour
 {
+    private const float X_VELOCITY = -100.0f;
     private const float TIME_BETWEEN_SPAWNS = 5.0f;
     private const float LEFT_X_BOUNDARY = -220.0f;
     
-    private bool m_ShouldSpawnWall = true;
+    private static bool s_ShouldSpawnWall = true;
 
     private float m_SpawnTimer = 0.0f;
 
@@ -17,9 +18,19 @@ public class WallMovement : MonoBehaviour
     [SerializeField]
     private Transform m_WallSpawnLocation;
 
-    private List<GameObject> m_Walls = new List<GameObject>();
+    private static List<GameObject> s_Walls = new List<GameObject>();
+    private static List<GameObject> s_MovingWalls = new List<GameObject>();
 
-    private List<GameObject> m_MovingWalls = new List<GameObject>();
+    public static void DestroyCurrentWalls()
+    {
+        foreach(GameObject wallOnScreen in s_MovingWalls) {
+            Destroy(wallOnScreen);
+        }
+
+        s_MovingWalls.Clear();
+
+        s_ShouldSpawnWall = true;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -27,15 +38,14 @@ public class WallMovement : MonoBehaviour
         int numChildren = m_WallsContainer.transform.childCount;
 
         for(int x = 0; x < numChildren; x++) {
-            m_Walls.Add(m_WallsContainer.transform.GetChild(x).gameObject);
+            s_Walls.Add(m_WallsContainer.transform.GetChild(x).gameObject);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(m_ShouldSpawnWall)
-        {
+        if(s_ShouldSpawnWall) {
             SpawnWall();
         }
 
@@ -46,33 +56,36 @@ public class WallMovement : MonoBehaviour
 
     private void SpawnWall()
     {
-        int randIndex = Random.Range(0, m_Walls.Count);
+        int randIndex = Random.Range(0, s_Walls.Count);
 
-        GameObject spawnedWall = Instantiate(m_Walls[randIndex], m_WallSpawnLocation);
-        spawnedWall.GetComponent<Rigidbody2D>().velocity = new Vector2(-100.0f, 0.0f);
+        GameObject spawnedWall = Instantiate(s_Walls[randIndex], m_WallSpawnLocation);
 
-        m_MovingWalls.Add(spawnedWall);
+        float new_X_Velocity = (X_VELOCITY / 5.0f) * (JumpFishBehavior.s_Score / 5) + X_VELOCITY;
 
-        m_ShouldSpawnWall = false;
+        spawnedWall.GetComponent<Rigidbody2D>().velocity = new Vector2(new_X_Velocity, 0.0f);
+
+        s_MovingWalls.Add(spawnedWall);
+
+        s_ShouldSpawnWall = false;
     }
 
     private void CheckIfOutOfBounds()
     {
         List<int> removedIndices = new List<int>();
         
-        for(int x = 0; x < m_MovingWalls.Count; x++)
+        for(int x = 0; x < s_MovingWalls.Count; x++)
         {
-            if(m_MovingWalls[x].transform.position.x <= LEFT_X_BOUNDARY)
+            if(s_MovingWalls[x].transform.position.x <= LEFT_X_BOUNDARY)
             {
                 removedIndices.Add(x);
-                m_ShouldSpawnWall = true;
+                s_ShouldSpawnWall = true;
             }
         }
 
         foreach(int index in removedIndices)
         {
-            Destroy(m_MovingWalls[index]);
-            m_MovingWalls.RemoveAt(index);
+            Destroy(s_MovingWalls[index]);
+            s_MovingWalls.RemoveAt(index);
         }
 
     }
