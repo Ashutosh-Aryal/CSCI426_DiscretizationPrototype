@@ -36,9 +36,12 @@ public class JumpFishBehavior : MonoBehaviour
     
     private List<GameObject> m_TeleportLocations = new List<GameObject>();
 
+    AudioSource audioSrc;
+
     private void OnTriggerEnter2D(Collider2D collision) {
 
         if(collision.gameObject.CompareTag(ADD_POINT_TRIGGER_TAG)) {
+            audioSrc.Play();
 
             s_Score++;
 
@@ -82,6 +85,8 @@ public class JumpFishBehavior : MonoBehaviour
 
         m_Slider.minValue = 0;
         m_Slider.maxValue = JUMP_MAX_THRESHOLD_INCREMENT * (m_TeleportLocations.Count - 1);
+        audioSrc = GetComponent<AudioSource>();
+
     }
 
     private int GetLocationIndex()
