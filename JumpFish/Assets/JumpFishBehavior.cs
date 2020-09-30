@@ -13,7 +13,7 @@ public class JumpFishBehavior : MonoBehaviour
     private const string WALL_TAG = "Wall";
     private const string NUM_JUMPS_LEFT_TEXT = "Number of Jumps Left: ";
 
-    private const float JUMP_MAX_THRESHOLD_INCREMENT = 0.25f;
+    private const float JUMP_MAX_THRESHOLD_INCREMENT = 0.2f;
 
     [SerializeField]
     private GameObject m_TeleportLocationsContainer;
@@ -23,6 +23,12 @@ public class JumpFishBehavior : MonoBehaviour
 
     [SerializeField]
     private Text m_NumberOfJumpsLeft;
+
+    [SerializeField]
+    private AudioSource m_BackgroundMusic;
+
+    [SerializeField]
+    private AudioSource m_JumpSound;
 
     public static int s_Score = 0;
 
@@ -63,6 +69,8 @@ public class JumpFishBehavior : MonoBehaviour
             m_NumAllowedJumps = 3;
             m_CurrentAllowedJumps = m_NumAllowedJumps;
             DisplayEndGameState(); // should restart game and reset player & wall locations
+
+            m_BackgroundMusic.Stop(); m_BackgroundMusic.Play();
         }
     }
 
@@ -87,6 +95,7 @@ public class JumpFishBehavior : MonoBehaviour
         m_Slider.maxValue = JUMP_MAX_THRESHOLD_INCREMENT * (m_TeleportLocations.Count - 1);
         audioSrc = GetComponent<AudioSource>();
 
+        m_BackgroundMusic.Play();
     }
 
     private int GetLocationIndex()
@@ -144,6 +153,7 @@ public class JumpFishBehavior : MonoBehaviour
             m_JumpHoldingTimer = 0.0f; m_ShouldIncrementJumpTimer = false;
             m_Slider.value = 0.0f;
             m_CurrentAllowedJumps--;
+            m_JumpSound.PlayOneShot(m_JumpSound.clip);
         } 
     }
 }

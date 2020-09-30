@@ -60,7 +60,7 @@ public class WallMovement : MonoBehaviour
 
         GameObject spawnedWall = Instantiate(s_Walls[randIndex], m_WallSpawnLocation);
 
-        float new_X_Velocity = (X_VELOCITY / 5.0f) * (JumpFishBehavior.s_Score / 5) + X_VELOCITY;
+        float new_X_Velocity = (X_VELOCITY / 5.0f) * (JumpFishBehavior.s_Score / 10) + X_VELOCITY;
 
         spawnedWall.GetComponent<Rigidbody2D>().velocity = new Vector2(new_X_Velocity, 0.0f);
 
